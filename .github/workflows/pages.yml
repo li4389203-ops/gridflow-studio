@@ -22,6 +22,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Restore source
+        run: |
+          mkdir -p src
+          cat .src/main.01 .src/main.02 .src/main.03 .src/main.04 | tr -d '\n' | base64 -d > src/main.jsx
+          cat .src/styles.01 .src/styles.02 .src/styles.03 | tr -d '\n' | base64 -d > src/styles.css
       - run: npm install
       - run: npm run build
       - uses: actions/configure-pages@v5

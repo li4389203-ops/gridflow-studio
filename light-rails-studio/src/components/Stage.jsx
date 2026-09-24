@@ -29,11 +29,11 @@ function Handles({ templateId, params, onParams }) {
         <div
           key={p.key}
           className="handle"
-          style={{ left: \`\${p.x * 100}%\`, top: \`\${p.y * 100}%\` }}
+          style={{ left: `${p.x * 100}%`, top: `${p.y * 100}%` }}
           onPointerDown={onPointerDown(p.key)}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          title={\`drag · \${p.key}\`}
+          title={`drag · ${p.key}`}
         />
       ))}
     </>
@@ -128,7 +128,7 @@ export default function Stage({
           <label style={{ marginLeft: 6 }}>{t('ui')}</label>
           <button
             type="button"
-            className={\`sw \${uiOn ? 'on' : ''}\`}
+            className={`sw ${uiOn ? 'on' : ''}`}
             role="switch"
             aria-checked={uiOn}
             aria-label={t('ui')}

@@ -204,12 +204,12 @@ export default function App() {
   }
 
   const share = async () => {
-    const url = \`\${location.origin}\${location.pathname}#look=\${encodeCfg(cfg)}\`
+    const url = `${location.origin}${location.pathname}#look=${encodeCfg(cfg)}`
     try {
       await navigator.clipboard.writeText(url)
       say(t('copied'))
     } catch {
-      history.replaceState(null, '', \`#look=\${encodeCfg(cfg)}\`)
+      history.replaceState(null, '', `#look=${encodeCfg(cfg)}`)
       say(t('copied'))
     }
     setMoreOpen(false)
@@ -219,7 +219,7 @@ export default function App() {
     const h = 2048
     const w = Math.round(h * aspect)
     renderStill(cfg, w, h, timeRef.current || 3).toBlob(b => {
-      download(b, \`light-rails-\${templateId}.png\`)
+      download(b, `light-rails-${templateId}.png`)
       say(t('exportedPng'))
     }, 'image/png')
   }
@@ -227,7 +227,7 @@ export default function App() {
   const exportJson = () => {
     download(
       new Blob([JSON.stringify(cfg, null, 2)], { type: 'application/json' }),
-      \`light-rails-\${templateId}.json\`,
+      `light-rails-${templateId}.json`,
     )
     say(t('exportedJson'))
   }
@@ -238,7 +238,7 @@ export default function App() {
     setRecording(true)
     say(t('recording'))
     const ok = recordWebm(canvasRef.current, 6, (blob) => {
-      download(blob, \`light-rails-\${templateId}.webm\`)
+      download(blob, `light-rails-${templateId}.webm`)
       setRecording(false)
       say(t('exportedVideo'))
     }, (err) => { setRecording(false); say(err) })
@@ -335,7 +335,7 @@ export default function App() {
 
           <div className="export-wrap" onPointerDown={e => e.stopPropagation()}>
             <button
-              className={\`tb-export \${recording ? 'rec' : ''}\`}
+              className={`tb-export ${recording ? 'rec' : ''}`}
               onClick={() => setExportOpen(o => !o)}
             >
               {recording ? '● REC…' : t('export')}
@@ -351,7 +351,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className={\`layout \${panelOpen ? '' : 'no-right'}\`}>
+      <main className={`layout ${panelOpen ? '' : 'no-right'}`}>
         <LeftPanel
           lang={lang} t={t}
           templateId={templateId} onTemplate={onTemplate}

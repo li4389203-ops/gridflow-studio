@@ -1,0 +1,31 @@
+name: Light Rails v2 build check
+
+on:
+  push:
+    branches:
+      - light-rails-v2
+    paths:
+      - 'light-rails-studio/**'
+      - '.github/workflows/light-rails-v2-check.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: light-rails-studio
+        run: npm install --no-audit --no-fund
+
+      - name: Production build
+        working-directory: light-rails-studio
+        run: npm run build

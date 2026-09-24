@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Light Rails — pattern studio</title>
+<meta name="theme-color" content="#f3f1ec">
+<style>
+:root{
+  --bg:#f3f1ec;--panel:#f7f6f2;--ink:#121212;--muted:#77736d;--line:#d9d6cf;
+  --soft:#ebe8e1;--accent:#121212;--r:10px;--stage:#070707;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+button,input,select{font:inherit}
+button{color:inherit}
+.app{height:100%;display:grid;grid-template-rows:54px 1fr}
+.topbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;height:54px;border-bottom:1px solid var(--line);padding:0 14px;background:rgba(243,241,236,.96);backdrop-filter:blur(16px);z-index:30}
+.brand{display:flex;align-items:baseline;gap:8px;min-width:0}
+.brand strong{font-size:15px;letter-spacing:-.02em;white-space:nowrap}
+.brand span{font-size:11px;color:var(--muted);white-space:nowrap}
+.center-nav{display:flex;gap:18px;align-items:center}
+.linkbtn{border:0;background:transparent;padding:7px 0;font-size:12px;color:#4f4b46;cursor:pointer;position:relative}
+.linkbtn:hover{color:#111}
+.linkbtn:after{content:"";position:absolute;left:0;right:100%;bottom:3px;height:1px;background:#111;transition:right .2s}
+.linkbtn:hover:after{right:0}
+.actions{display:flex;justify-content:flex-end;align-items:center;gap:8px}
+.pill{height:31px;border:1px solid var(--line);background:#faf9f6;border-radius:999px;padding:0 11px;font-size:11px;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+.pill:hover{background:#fff;border-color:#c9c5bc}
+.pill.dark{background:#171717;color:#fff;border-color:#171717;padding:0 14px}
+.lang{padding:0 5px;gap:0}
+.lang span{padding:5px 7px;border-radius:999px;color:#8a867f}
+.lang span.active{background:#171717;color:white}
+.workspace{min-height:0;display:grid;grid-template-columns:238px minmax(420px,1fr) 286px}
+.sidebar,.inspector{background:var(--panel);min-height:0;overflow:auto;scrollbar-width:thin;scrollbar-color:#cbc7be transparent}
+.sidebar{border-right:1px solid var(--line);padding:14px}
+.inspector{border-left:1px solid var(--line);padding:0 15px 18px}
+.kicker{font-size:10px;text-transform:uppercase;letter-spacing:.11em;color:#8c887f;margin:1px 0 10px}
+.shape-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.shape-btn{height:60px;border:1px solid #ddd9d0;border-radius:8px;background:#f1efe9;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;transition:.16s ease}
+.shape-btn:hover{background:#fff;border-color:#c9c5bc;transform:translateY(-1px)}
+.shape-btn.active{background:#161616;border-color:#161616}
+.shape-btn svg{width:34px;height:34px;stroke:#5c5851;fill:none;stroke-width:1.55;stroke-linecap:round;stroke-linejoin:round}
+.shape-btn.active svg{stroke:#fff}
+.shape-btn .num{position:absolute;left:6px;top:5px;font-size:8px;color:#9a968d}
+.shape-btn.active .num{color:#777}
+.shape-name{font-size:11px;margin:10px 0 12px;color:#4d4943;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-note{border-top:1px solid var(--line);padding-top:12px;margin-top:12px;color:#8d8982;font-size:10px;line-height:1.55}
+.stage-area{min-width:0;min-height:0;position:relative;background:#dedbd4;overflow:hidden}
+.stage-toolbar{position:absolute;left:14px;right:14px;top:14px;height:34px;display:flex;justify-content:space-between;z-index:10;pointer-events:none}
+.toolgroup{display:flex;gap:7px;pointer-events:auto}
+.iconbtn,.modebtn{height:32px;border:1px solid rgba(255,255,255,.13);background:rgba(19,19,19,.75);color:#e9e7e2;border-radius:8px;padding:0 10px;font-size:10px;display:flex;align-items:center;gap:6px;cursor:pointer;backdrop-filter:blur(13px);box-shadow:0 4px 20px rgba(0,0,0,.12)}
+.iconbtn:hover,.modebtn:hover{background:#181818}
+.iconbtn svg{width:13px;height:13px}
+.modebtn select{border:0;background:transparent;color:inherit;outline:0;font-size:10px}
+.modebtn option{background:#171717;color:white}
+.stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#dcd9d2;transition:.35s ease}
+.preview-shell{position:relative;background:#080808;overflow:hidden;box-shadow:0 26px 70px rgba(0,0,0,.15);transition:.35s cubic-bezier(.2,.75,.25,1)}
+.preview-shell canvas{display:block;width:100%;height:100%}
+.stage.mode-canvas{background:#dcd9d2}
+.stage.mode-canvas .preview-shell{width:calc(100% - 28px);height:calc(100% - 28px);border-radius:11px;box-shadow:none}
+.stage.mode-poster{background:#d7d3cc}
+.stage.mode-poster:before{content:"";position:absolute;width:100%;height:100%;background:radial-gradient(circle at 50% 46%,rgba(255,255,255,.64),transparent 43%)}
+.stage.mode-poster .preview-shell{height:min(78%,690px);aspect-ratio:3/4;border-radius:2px;box-shadow:0 32px 65px rgba(0,0,0,.22)}
+.stage.mode-poster .preview-shell:after{content:"LIGHT / RAILS";position:absolute;left:5%;bottom:4.5%;font-size:11px;letter-spacing:.18em;color:rgba(255,255,255,.78)}
+.stage.mode-billboard{background:linear-gradient(#cbc9c4 0 57%,#a6a49f 57%);perspective:1000px}
+.stage.mode-billboard:before{content:"";position:absolute;left:6%;right:6%;top:12%;bottom:18%;background:linear-gradient(145deg,rgba(255,255,255,.3),rgba(255,255,255,0));border:1px solid rgba(255,255,255,.23);filter:blur(.2px)}
+.stage.mode-billboard:after{content:"";position:absolute;left:50%;bottom:9%;width:44%;height:3%;transform:translateX(-50%);background:rgba(0,0,0,.19);filter:blur(18px);border-radius:50%}
+.stage.mode-billboard .preview-shell{width:min(70%,860px);aspect-ratio:16/9;border:8px solid #1a1a19;border-radius:2px;transform:rotateX(1deg) rotateY(-7deg);box-shadow:0 35px 55px rgba(0,0,0,.31)}
+.stage.mode-billboard .preview-shell:before{content:"";position:absolute;left:15%;right:15%;top:100%;height:85px;background:linear-gradient(90deg,transparent 0 9%,#3a3937 9% 12%,transparent 12% 88%,#3a3937 88% 91%,transparent 91%);z-index:-1}
+.stage-footer{position:absolute;left:18px;bottom:14px;color:rgba(255,255,255,.48);font-size:9px;z-index:12;letter-spacing:.02em;mix-blend-mode:difference}
+.ins-section{padding:15px 0 14px;border-bottom:1px solid var(--line)}
+.ins-section:last-child{border-bottom:0}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.section-head h3{font-size:11px;margin:0;font-weight:650}
+.section-head span{font-size:9px;color:#969188}
+.row{display:grid;grid-template-columns:86px 1fr 35px;align-items:center;gap:7px;min-height:30px}
+.row label{font-size:10px;color:#625e57}
+.val{font-size:9px;color:#858077;text-align:right;font-variant-numeric:tabular-nums}
+input[type=range]{appearance:none;width:100%;height:16px;background:transparent;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:1px;background:#cac6bd}
+input[type=range]::-webkit-slider-thumb{appearance:none;width:9px;height:9px;border-radius:50%;background:#171717;margin-top:-4px;box-shadow:0 0 0 2px #f7f6f2}
+.colors{display:grid;grid-template-columns:86px 1fr;gap:7px;align-items:center;min-height:33px}
+.colors label{font-size:10px;color:#625e57}
+.colorpair{display:flex;gap:6px}
+.colorwell{height:24px;flex:1;border:1px solid #d4d0c6;border-radius:6px;overflow:hidden;position:relative;background:#fff}
+.colorwell input{position:absolute;inset:-8px;width:calc(100% + 16px);height:calc(100% + 16px);border:0;padding:0;cursor:pointer}
+.swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:9px}
+.swatch{height:22px;border:1px solid rgba(0,0,0,.08);border-radius:6px;cursor:pointer}
+.segment{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#ebe8e1;padding:3px;border-radius:7px}
+.segment button{height:25px;border:0;background:transparent;border-radius:5px;font-size:9px;color:#77726a;cursor:pointer}
+.segment button.active{background:#fff;color:#111;box-shadow:0 1px 2px rgba(0,0,0,.07)}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;height:31px}
+.toggle-row span{font-size:10px;color:#625e57}
+.toggle{width:28px;height:16px;border:0;border-radius:999px;background:#d3cfc6;padding:2px;cursor:pointer;transition:.2s}
+.toggle i{display:block;width:12px;height:12px;border-radius:50%;background:white;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.17)}
+.toggle.on{background:#191919}
+.toggle.on i{transform:translateX(12px)}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.28);backdrop-filter:blur(3px);z-index:100;display:none;align-items:center;justify-content:center}
+.modal-backdrop.show{display:flex}
+.modal{width:min(430px,calc(100vw - 30px));background:#f5f3ee;border:1px solid #d7d3ca;border-radius:14px;box-shadow:0 34px 100px rgba(0,0,0,.23);padding:18px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-head h2{font-size:14px;margin:0}
+.close{border:0;background:transparent;font-size:18px;line-height:1;cursor:pointer;color:#777}
+.export-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.export-card{border:1px solid #d9d5cc;background:#eeece6;border-radius:10px;padding:13px;text-align:left;cursor:pointer}
+.export-card:hover{background:white;border-color:#c9c4ba}
+.export-card strong{display:block;font-size:11px;margin-bottom:5px}
+.export-card span{display:block;color:#89847b;font-size:9px;line-height:1.45}
+.progress{height:3px;background:#dfdbd2;border-radius:99px;margin-top:13px;overflow:hidden;display:none}
+.progress i{display:block;height:100%;background:#111;width:0}
+.roadmap{font-size:11px;line-height:1.65;color:#5e5a54}
+.roadmap b{color:#171717}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:#171717;color:#fff;font-size:10px;padding:9px 12px;border-radius:999px;opacity:0;pointer-events:none;transition:.22s;z-index:160}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:980px){
+  .workspace{grid-template-columns:190px 1fr 250px}.sidebar{padding:10px}.shape-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:760px){
+  body{overflow:auto}.app{height:auto;min-height:100vh}.topbar{grid-template-columns:1fr auto}.center-nav{display:none}.workspace{display:block}.sidebar{display:none}.stage-area{height:58vh;min-height:420px}.inspector{border-left:0;border-top:1px solid var(--line)}.stage.mode-canvas .preview-shell{width:calc(100% - 16px);height:calc(100% - 16px)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><strong>Light Rails</strong><span data-i18n="by">by Dinesh</span></div>
+    <nav class="center-nav">
+      <button class="linkbtn" data-i18n="follow" id="followBtn">Follow for more tools</button>
+      <button class="linkbtn" data-i18n="roadmap" id="roadmapBtn">Roadmap</button>
+    </nav>
+    <div class="actions">
+      <button class="pill lang" id="langBtn" aria-label="Language"><span class="active" data-lang="en">EN</span><span data-lang="zh">中</span></button>
+      <button class="pill dark" id="exportBtn"><span data-i18n="export">Export</span><span>↗</span></button>
+    </div>
+  </header>
+  <main class="workspace">
+    <aside class="sidebar">
+      <div class="kicker" data-i18n="shapes">Shapes</div>
+      <div id="shapeGrid" class="shape-grid"></div>
+      <div class="shape-name" id="shapeName">01 / Parallel</div>
+      <div class="sidebar-note" data-i18n="hint">Pick a rail form, then tune its density, glow and motion. Press R to randomize and Space to pause.</div>
+    </aside>
+
+    <section class="stage-area">
+      <div class="stage-toolbar">
+        <div class="toolgroup">
+          <label class="modebtn"><span data-i18n="mockup">Mockup</span>
+            <select id="modeSelect">
+              <option value="canvas" data-i18n-option="canvas">Canvas</option>
+              <option value="poster" data-i18n-option="poster">Poster</option>
+              <option value="billboard" data-i18n-option="billboard">Billboard</option>
+            </select>
+          </label>
+        </div>
+        <div class="toolgroup">
+          <button class="iconbtn" id="randomBtn" title="Randomize">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/></svg>
+            <span data-i18n="random">Randomize</span>
+          </button>
+          <button class="iconbtn" id="playBtn">
+            <svg id="playIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 5v14l11-7z"/></svg>
+            <span id="playLabel" data-i18n="pause">Pause</span>
+          </button>
+        </div>
+      </div>
+      <div id="stage" class="stage mode-canvas">
+        <div class="preview-shell" id="previewShell"><canvas id="railCanvas"></canvas></div>
+      </div>
+      <div class="stage-footer" id="stageMeta">1920 × 1080 · 60 FPS · WebGL-like canvas</div>
+    </section>
+
+    <aside class="inspector">
+      <section class="ins-section">
+        <div class="section-head"><h3 data-i18n="pattern">Pattern</h3><span id="presetId">P-01</span></div>
+        <div class="row"><label data-i18n="count">Count</label><input id="count" type="range" min="3" max="28" step="1" value="12"><span class="val" data-val="count"></span></div>
+        <div class="row"><label data-i18n="spacing">Spacing</label><input id="spacing" type="range" min="12" max="120" step="1" value="44"><span class="val" data-val="spacing"></span></div>
+        <div class="row"><label data-i18n="length">Length</label><input id="length" type="range" min="30" max="160" step="1" value="100"><span class="val" data-val="length"></span></div>
+        <div class="row"><label data-i18n="angle">Angle</label><input id="angle" type="range" min="-90" max="90" step="1" value="-18"><span class="val" data-val="angle"></span></div>
+        <div class="row"><label data-i18n="radius">Radius</label><input id="radius" type="range" min="0" max="100" step="1" value="42"><span class="val" data-val="radius"></span></div>
+      </section>
+
+      <section class="ins-section">
+        <div class="section-head"><h3 data-i18n="appearance">Appearance</h3><span>FX</span></div>
+        <div class="row"><label data-i18n="stroke">Stroke</label><input id="stroke" type="range" min=".6" max="8" step=".1" value="2.2"><span class="val" data-val="stroke"></span></div>
+        <div class="row"><label data-i18n="glow">Glow</label><input id="glow" type="range" min="0" max="48" step="1" value="21"><span class="val" data-val="glow"></span></div>
+        <div class="row"><label data-i18n="intensity">Intensity</label><input id="intensity" type="range" min="20" max="160" step="1" value="100"><span class="val" data-val="intensity"></span></div>
+        <div class="colors"><label data-i18n="color">Color</label><div class="colorpair"><div class="colorwell"><input id="colorA" type="color" value="#f8ffb8"></div><div class="colorwell"><input id="colorB" type="color" value="#87ffe5"></div></div></div>
+        <div class="swatches" id="swatches">
+          <button class="swatch" data-a="#f6ffb8" data-b="#71ffe4" style="background:linear-gradient(135deg,#f6ffb8,#71ffe4)"></button>
+          <button class="swatch" data-a="#ff7ad9" data-b="#7a8cff" style="background:linear-gradient(135deg,#ff7ad9,#7a8cff)"></button>
+          <button class="swatch" data-a="#ff9a62" data-b="#ffe279" style="background:linear-gradient(135deg,#ff9a62,#ffe279)"></button>
+          <button class="swatch" data-a="#ffffff" data-b="#8ee6ff" style="background:linear-gradient(135deg,#fff,#8ee6ff)"></button>
+          <button class="swatch" data-a="#bdff74" data-b="#26d7a3" style="background:linear-gradient(135deg,#bdff74,#26d7a3)"></button>
+          <button class="swatch" data-a="#ff5d5d" data-b="#ffb46f" style="background:linear-gradient(135deg,#ff5d5d,#ffb46f)"></button>
+        </div>
+      </section>
+
+      <section class="ins-section">
+        <div class="section-head"><h3 data-i18n="motion">Motion</h3><span>60 fps</span></div>
+        <div class="row"><label data-i18n="speed">Speed</label><input id="speed" type="range" min="0" max="3" step=".05" value=".65"><span class="val" data-val="speed"></span></div>
+        <div class="row"><label data-i18n="phase">Phase</label><input id="phase" type="range" min="0" max="360" step="1" value="0"><span class="val" data-val="phase"></span></div>
+        <div class="toggle-row"><span data-i18n="breathe">Breathing glow</span><button class="toggle on" id="breatheToggle" aria-label="toggle"><i></i></button></div>
+        <div class="toggle-row"><span data-i18n="grain">Fine grain</span><button class="toggle" id="grainToggle" aria-label="toggle"><i></i></button></div>
+      </section>
+
+      <section class="ins-section">
+        <div class="section-head"><h3 data-i18n="background">Background</h3><span>BG</span></div>
+        <div class="colors"><label data-i18n="color">Color</label><div class="colorpair"><div class="colorwell"><input id="bgColor" type="color" value="#070707"></div></div></div>
+        <div class="segment" id="ratioSegment">
+          <button class="active" data-ratio="16/9">16:9</button>
+          <button data-ratio="1/1">1:1</button>
+          <button data-ratio="9/16">9:16</button>
+        </div>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="exportModal">
+  <div class="modal">
+    <div class="modal-head"><h2 data-i18n="exportTitle">Export pattern</h2><button class="close" data-close="exportModal">×</button></div>
+    <div class="export-grid">
+      <button class="export-card" id="pngBtn"><strong data-i18n="pngTitle">PNG image</strong><span data-i18n="pngDesc">High-resolution still using the current aspect ratio.</span></button>
+      <button class="export-card" id="webmBtn"><strong data-i18n="videoTitle">Showreel · WebM</strong><span data-i18n="videoDesc">Record a 4-second seamless motion clip directly in the browser.</span></button>
+    </div>
+    <div class="progress" id="exportProgress"><i></i></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="roadmapModal">
+  <div class="modal">
+    <div class="modal-head"><h2 data-i18n="roadmap">Roadmap</h2><button class="close" data-close="roadmapModal">×</button></div>
+    <div class="roadmap" data-i18n-html="roadmapBody"><b>Now</b> — 24 rail forms, live mockups, color and motion controls, PNG + browser video export.<br><br><b>Next</b> — saved presets, SVG paths, more physical mockups and shareable links.</div>
+  </div>
+</div>
+<div class="toast" id="toast">Export ready</div>
+
+<script>
+(function(){
+"use strict";
+var canvas=document.getElementById("railCanvas"),ctx=canvas.getContext("2d");
+var stage=document.getElementById("stage"),shell=document.getElementById("previewShell");
+var running=true,last=performance.now(),time=0,ratio="16/9";
+var state={shape:0,count:12,spacing:44,length:100,angle:-18,radius:42,stroke:2.2,glow:21,intensity:100,speed:.65,phase:0,colorA:"#f8ffb8",colorB:"#87ffe5",bg:"#070707",breathe:true,grain:false};
+var shapes=[
+["Parallel","平行线","M4 7h26M4 17h26M4 27h26"],
+["Arc","弧线","M3 27C9 5 25 5 31 27M8 29C13 12 22 12 27 29"],
+["Wave","波浪","M2 11c6-8 10 8 16 0s10 8 16 0M2 23c6-8 10 8 16 0s10 8 16 0"],
+["Zigzag","折线","M2 27 9 7l8 20 8-20 7 20"],
+["Orbit","轨道","M17 3a14 14 0 1 0 0 28 14 14 0 1 0 0-28Zm0 6a8 8 0 1 0 0 16 8 8 0 1 0 0-16Z"],
+["Ring","圆环","M17 4a13 13 0 1 0 0 26 13 13 0 1 0 0-26Z"],
+["Capsule","胶囊","M9 6h16a9 9 0 0 1 0 18H9A9 9 0 0 1 9 6Z"],
+["Corner","转角","M4 28V12a8 8 0 0 1 8-8h16M10 28V14a4 4 0 0 1 4-4h14"],
+["Grid","网格","M5 3v28M17 3v28M29 3v28M3 7h28M3 19h28"],
+["Cross","十字","M17 3v28M3 17h28M7 7l20 20M27 7 7 27"],
+["Beam","光束","M3 9h28M3 13h28M3 17h28M3 21h28M3 25h28"],
+["Spiral","螺旋","M17 17c0-6 9-6 9 0 0 8-12 12-17 5-6-7 1-18 11-20 12-3 13-18 12-25"],
+["Sine","正弦","M2 17c5-13 10 13 15 0s10 13 15 0"],
+["Chevron","箭纹","M4 8l13 9L4 26M17 8l13 9-13 9"],
+["Loop","回环","M5 17c0-8 12-8 12 0s12 8 12 0-12-8-12 0S5 25 5 17Z"],
+["Ribbon","丝带","M3 9c8 0 7 16 15 16s7-16 13-16M3 15c8 0 7 12 15 12s7-12 13-12"],
+["Halo","光环","M17 5a12 12 0 1 0 0 24 12 12 0 1 0 0-24Zm0 5a7 7 0 1 0 0 14 7 7 0 1 0 0-14Z"],
+["Sweep","扫光","M2 28C8 3 21 3 32 8M2 22C10 5 22 6 32 12M2 16C12 8 24 10 32 16"],
+["Burst","放射","M17 2v12M17 20v12M2 17h12M20 17h12M6 6l8 8M20 20l8 8M28 6l-8 8M14 20l-8 8"],
+["Tunnel","隧道","M4 29V11L17 3l13 8v18M9 29V14l8-5 8 5v15M14 29V18l3-2 3 2v11"],
+["Helix","螺旋带","M4 6c9 0 9 22 18 22M12 6c9 0 9 22 18 22M4 28c9 0 9-22 18-22M12 28c9 0 9-22 18-22"],
+["Diamond","菱形","M17 3 31 17 17 31 3 17 17 3Zm0 7 7 7-7 7-7-7 7-7Z"],
+["Fold","折叠","M3 27 10 7l7 14 7-14 7 20M3 21 10 3l7 12 7-12 7 18"],
+["Current","流线","M3 7c8 9 7 11 14 10s8-9 14 0M3 17c8 9 7 11 14 10s8-9 14 0"]
+];
+var dict={
+en:{by:"by Dinesh",follow:"Follow for more tools",roadmap:"Roadmap",export:"Export",shapes:"Shapes",hint:"Pick a rail form, then tune its density, glow and motion. Press R to randomize and Space to pause.",mockup:"Mockup",canvas:"Canvas",poster:"Poster",billboard:"Billboard",random:"Randomize",pause:"Pause",play:"Play",pattern:"Pattern",count:"Count",spacing:"Spacing",length:"Length",angle:"Angle",radius:"Radius",appearance:"Appearance",stroke:"Stroke",glow:"Glow",intensity:"Intensity",color:"Color",motion:"Motion",speed:"Speed",phase:"Phase",breathe:"Breathing glow",grain:"Fine grain",background:"Background",exportTitle:"Export pattern",pngTitle:"PNG image",pngDesc:"High-resolution still using the current aspect ratio.",videoTitle:"Showreel · WebM",videoDesc:"Record a 4-second seamless motion clip directly in the browser.",roadmapBody:"<b>Now</b> — 24 rail forms, live mockups, color and motion controls, PNG + browser video export.<br><br><b>Next</b> — saved presets, SVG paths, more physical mockups and shareable links.",ready:"Export ready",recording:"Recording 4-second showreel…",unsupported:"Video export is not supported in this browser.",followToast:"Creator link kept as a study-only replica."},
+zh:{by:"Dinesh 制作",follow:"更多设计工具",roadmap:"更新计划",export:"导出",shapes:"形态",hint:"选择一种光轨形态，再调节密度、光晕和运动。按 R 随机生成，按空格暂停/播放。",mockup:"预览场景",canvas:"画布",poster:"海报",billboard:"广告牌",random:"随机生成",pause:"暂停",play:"播放",pattern:"图案",count:"数量",spacing:"间距",length:"长度",angle:"角度",radius:"弧度",appearance:"外观",stroke:"线宽",glow:"光晕",intensity:"亮度",color:"颜色",motion:"动效",speed:"速度",phase:"相位",breathe:"呼吸光晕",grain:"细微颗粒",background:"背景",exportTitle:"导出图案",pngTitle:"PNG 图像",pngDesc:"按当前画面比例导出高清静帧。",videoTitle:"动态展示 · WebM",videoDesc:"直接在浏览器中录制 4 秒无缝循环动画。",roadmapBody:"<b>当前版本</b> — 24 种光轨形态、实时样机、颜色与动效控制、PNG 与浏览器视频导出。<br><br><b>后续计划</b> — 预设保存、SVG 路径、更多真实载体样机与可分享链接。",ready:"导出完成",recording:"正在录制 4 秒动画…",unsupported:"当前浏览器不支持视频导出。",followToast:"复刻版保留原作者入口语义，仅用于学习。"}
+};
+var lang="en";
+
+function q(id){return document.getElementById(id)}
+function hexToRgba(hex,a){var v=parseInt(hex.slice(1),16);return "rgba("+((v>>16)&255)+","+((v>>8)&255)+","+(v&255)+","+a+")"}
+function lerp(a,b,t){return a+(b-a)*t}
+function rgb(hex){var v=parseInt(hex.slice(1),16);return [(v>>16)&255,(v>>8)&255,v&255]}
+function mixColor(a,b,t,alpha){var x=rgb(a),y=rgb(b);return "rgba("+Math.round(lerp(x[0],y[0],t))+","+Math.round(lerp(x[1],y[1],t))+","+Math.round(lerp(x[2],y[2],t))+","+alpha+")"}
+
+function buildShapes(){
+ var grid=q("shapeGrid");grid.innerHTML="";
+ shapes.forEach(function(s,i){
+   var b=document.createElement("button");b.className="shape-btn"+(i===state.shape?" active":"");b.dataset.index=i;
+   b.innerHTML='<span class="num">'+String(i+1).padStart(2,"0")+'</span><svg viewBox="0 0 34 34"><path d="'+s[2]+'"/></svg>';
+   b.onclick=function(){state.shape=i;updateShapeUI();};
+   grid.appendChild(b);
+ });
+ updateShapeUI();
+}
+function updateShapeUI(){
+ document.querySelectorAll(".shape-btn").forEach(function(b){b.classList.toggle("active",+b.dataset.index===state.shape)});
+ q("shapeName").textContent=String(state.shape+1).padStart(2,"0")+" / "+shapes[state.shape][lang==="zh"?1:0];
+ q("presetId").textContent="P-"+String(state.shape+1).padStart(2,"0");
+}
+function applyLang(next){
+ lang=next;
+ document.documentElement.lang=lang==="zh"?"zh-CN":"en";
+ document.querySelectorAll("[data-i18n]").forEach(function(el){var k=el.dataset.i18n;if(dict[lang][k])el.textContent=dict[lang][k]});
+ document.querySelectorAll("[data-i18n-html]").forEach(function(el){var k=el.dataset.i18nHtml;if(dict[lang][k])el.innerHTML=dict[lang][k]});
+ document.querySelectorAll("[data-i18n-option]").forEach(function(el){var k=el.dataset.i18nOption;if(dict[lang][k])el.textContent=dict[lang][k]});
+ q("langBtn").querySelectorAll("span").forEach(function(s){s.classList.toggle("active",s.dataset.lang===lang)});
+ q("playLabel").textContent=running?dict[lang].pause:dict[lang].play;
+ updateShapeUI();
+ try{localStorage.setItem("light-rails-lang",lang)}catch(e){}
+}
+function toast(msg){var t=q("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(function(){t.classList.remove("show")},1800)}
+
+var controls=["count","spacing","length","angle","radius","stroke","glow","intensity","speed","phase"];
+controls.forEach(function(id){
+ var el=q(id);el.addEventListener("input",function(){state[id]=+el.value;updateValues()});
+});
+["colorA","colorB"].forEach(function(id){q(id).addEventListener("input",function(){state[id]=this.value})});
+q("bgColor").addEventListener("input",function(){state.bg=this.value});
+function updateValues(){
+ document.querySelector('[data-val="count"]').textContent=state.count;
+ document.querySelector('[data-val="spacing"]').textContent=state.spacing+"px";
+ document.querySelector('[data-val="length"]').textContent=state.length+"%";
+ document.querySelector('[data-val="angle"]').textContent=state.angle+"°";
+ document.querySelector('[data-val="radius"]').textContent=state.radius+"%";
+ document.querySelector('[data-val="stroke"]').textContent=state.stroke.toFixed(1);
+ document.querySelector('[data-val="glow"]').textContent=state.glow;
+ document.querySelector('[data-val="intensity"]').textContent=state.intensity+"%";
+ document.querySelector('[data-val="speed"]').textContent=state.speed.toFixed(2);
+ document.querySelector('[data-val="phase"]').textContent=state.phase+"°";
+}
+function setControl(id,v){state[id]=v;q(id).value=v}
+function randomize(){
+ state.shape=Math.floor(Math.random()*shapes.length);
+ setControl("count",Math.floor(5+Math.random()*18));
+ setControl("spacing",Math.floor(20+Math.random()*80));
+ setControl("length",Math.floor(65+Math.random()*70));
+ setControl("angle",Math.floor(-55+Math.random()*110));
+ setControl("radius",Math.floor(15+Math.random()*80));
+ setControl("stroke",+(1+Math.random()*3.5).toFixed(1));
+ setControl("glow",Math.floor(10+Math.random()*30));
+ setControl("intensity",Math.floor(72+Math.random()*60));
+ setControl("speed",+(0.25+Math.random()*1.5).toFixed(2));
+ var palettes=[["#f6ffb8","#71ffe4"],["#ff7ad9","#7a8cff"],["#ff9a62","#ffe279"],["#ffffff","#8ee6ff"],["#bdff74","#26d7a3"],["#ff5d5d","#ffb46f"]];
+ var p=palettes[Math.floor(Math.random()*palettes.length)];state.colorA=p[0];state.colorB=p[1];q("colorA").value=p[0];q("colorB").value=p[1];
+ updateValues();updateShapeUI();
+}
+function toggleRun(){
+ running=!running;q("playLabel").textContent=running?dict[lang].pause:dict[lang].play;
+ q("playIcon").innerHTML=running?'<path d="M8 5v14l11-7z"/>':'<path d="M8 5h3v14H8zM15 5h3v14h-3z"/>';
+}
+function toggleClass(btn,key){state[key]=!state[key];btn.classList.toggle("on",state[key])}
+q("randomBtn").onclick=randomize;q("playBtn").onclick=toggleRun;
+q("breatheToggle").onclick=function(){toggleClass(this,"breathe")};q("grainToggle").onclick=function(){toggleClass(this,"grain")};
+q("swatches").addEventListener("click",function(e){var b=e.target.closest(".swatch");if(!b)return;state.colorA=b.dataset.a;state.colorB=b.dataset.b;q("colorA").value=state.colorA;q("colorB").value=state.colorB});
+q("modeSelect").onchange=function(){stage.className="stage mode-"+this.value;setTimeout(resize,380)};
+q("ratioSegment").onclick=function(e){var b=e.target.closest("button");if(!b)return;ratio=b.dataset.ratio;this.querySelectorAll("button").forEach(function(x){x.classList.toggle("active",x===b)});setRatio()};
+function setRatio(){
+ if(q("modeSelect").value!=="canvas")return;
+ var ar=ratio==="16/9"?16/9:ratio==="1/1"?1:9/16,box=stage.getBoundingClientRect(),w=box.width-28,h=box.height-28;
+ if(w/h>ar)w=h*ar;else h=w/ar;shell.style.width=w+"px";shell.style.height=h+"px";resize();
+}
+q("modeSelect").addEventListener("change",function(){shell.style.width="";shell.style.height="";if(this.value==="canvas")setTimeout(setRatio,50)});
+
+function resize(){
+ var r=shell.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);
+ canvas.width=Math.max(2,Math.floor(r.width*d));canvas.height=Math.max(2,Math.floor(r.height*d));
+}
+window.addEventListener("resize",function(){if(q("modeSelect").value==="canvas")setRatio();else resize()});
+
+function setupTransform(w,h){
+ ctx.translate(w/2,h/2);ctx.rotate(state.angle*Math.PI/180);ctx.scale(state.length/100,state.length/100);
+}
+function beginRail(i,total,alpha){
+ var t=total<=1?0:i/(total-1),c=mixColor(state.colorA,state.colorB,t,alpha),gl=mixColor(state.colorA,state.colorB,t,1);
+ ctx.strokeStyle=c;ctx.lineWidth=state.stroke*(window.devicePixelRatio||1);ctx.lineCap="round";ctx.lineJoin="round";ctx.shadowBlur=state.glow*(window.devicePixelRatio||1);ctx.shadowColor=gl;
+}
+function pathParallel(w,h,phase){
+ var gap=state.spacing, n=state.count, shift=(phase*gap)%gap;
+ for(var i=0;i<n;i++){beginRail(i,n,state.intensity/100);var y=(i-(n-1)/2)*gap+shift-gap/2;ctx.beginPath();ctx.moveTo(-w*.65,y);ctx.lineTo(w*.65,y);ctx.stroke()}
+}
+function pathWave(w,h,phase,kind){
+ var gap=state.spacing,n=state.count,amp=12+state.radius*.65,step=8;
+ for(var i=0;i<n;i++){beginRail(i,n,state.intensity/100);var y0=(i-(n-1)/2)*gap;ctx.beginPath();
+   for(var x=-w*.65;x<=w*.65;x+=step){var y=y0+Math.sin(x*.018+phase+i*.12)*amp;if(kind===3)y=y0+(Math.abs(((x+phase*80)%90+90)%90-45)-22)*.55;if(x===-w*.65)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.stroke()}
+}
+function pathArc(w,h,phase,variant){
+ var n=state.count,gap=state.spacing*.55,base=Math.min(w,h)*(.17+state.radius/220);
+ for(var i=0;i<n;i++){beginRail(i,n,state.intensity/100);ctx.beginPath();var r=base+i*gap*.55+(variant?Math.sin(phase+i*.3)*8:0);var a0=-Math.PI*.95+phase*.08,a1=Math.PI*.15+phase*.08;ctx.arc(0,0,r,a0,a1);ctx.stroke()}
+}
+function pathOrbit(w,h,phase,variant){
+ var n=Math.min(state.count,18),gap=state.spacing*.45;
+ for(var i=0;i<n;i++){beginRail(i,n,state.intensity/100);ctx.beginPath();var rx=Math.min(w,h)*.15+i*gap,ry=rx*(variant?.55:.8);ctx.ellipse(0,0,rx,ry,phase*.12+i*.02,0,Math.PI*2);ctx.stroke()}
+}
+function pathGrid(w,h,phase,cross){
+ var n=Math.ceil(state.count/2),gap=state.spacing,span=Math.max(w,h);
+ for(var i=-n;i<=n;i++){beginRail(i+n,n*2+1,state.intensity/100*.9);ctx.beginPath();ctx.moveTo(-span,i*gap+Math.sin(phase+i)*5);ctx.lineTo(span,i*gap);ctx.stroke();if(cross){ctx.beginPath();ctx.moveTo(i*gap,-span);ctx.lineTo(i*gap,span);ctx.stroke()}}
+}
+function pathCorner(w,h,phase){
+ var n=state.count,gap=state.spacing*.7,rad=state.radius*1.5+10;
+ for(var i=0;i<n;i++){beginRail(i,n,state.intensity/100);var d=(i-(n-1)/2)*gap;ctx.beginPath();ctx.moveTo(-w*.55,d);ctx.lineTo(-rad+d*.08,d);ctx.quadraticCurveTo(d*.08,d,d*.08,rad+d);ctx.lineTo(d*.08,h*.6);ctx.stroke()}
+}
+function pathSpiral(w,h,phase){
+ var n=state.count,turns=2.4+state.radius/45;
+ for(var i=0;i<n;i++){beginRail(i,n,state.intensity/100);ctx.beginPath();for(var s=0;s<180;s++){var a=s/180*Math.PI*2*turns+phase+i*.15,r=(s/180)*Math.min(w,h)*.43+i*1.2,x=Math.cos(a)*r,y=Math.sin(a)*r;if(s===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.stroke()}
+}
+function pathChevron(w,h,phase){
+ var n=state.count,gap=state.spacing,span=w*.58;
+ for(var i=0;i<n;i++){beginRail(i,n,state.intensity/100);var y=(i-(n-1)/2)*gap,off=Math.sin(phase+i*.2)*8;ctx.beginPath();ctx.moveTo(-span,y+gap*.42+off);ctx.lineTo(0,y-gap*.42+off);ctx.lineTo(span,y+gap*.42+off);ctx.stroke()}
+}
+function pathBurst(w,h,phase){
+ var n=Math.max(6,state.count),r0=state.radius*.5+12,r1=Math.min(w,h)*.65;
+ for(var i=0;i<n;i++){beginRail(i,n,state.intensity/100);var a=i/n*Math.PI*2+phase*.25;ctx.beginPath();ctx.moveTo(Math.cos(a)*r0,Math.sin(a)*r0);ctx.lineTo(Math.cos(a)*r1,Math.sin(a)*r1);ctx.stroke()}
+}
+function pathTunnel(w,h,phase){
+ var n=state.count,gap=Math.min(w,h)*.038;
+ for(var i=0;i<n;i++){beginRail(i,n,state.intensity/100);var inset=i*gap+((phase*10)%gap),ww=w*.6-inset*1.3,hh=h*.58-inset;if(ww<8||hh<8)continue;ctx.strokeRect(-ww/2,-hh/2,ww,hh)}
+}
+function pathRibbon(w,h,phase,helix){
+ var n=state.count,gap=state.spacing*.7;
+ for(var i=0;i<n;i++){beginRail(i,n,state.intensity/100);var y0=(i-(n-1)/2)*gap;ctx.beginPath();for(var x=-w*.6;x<=w*.6;x+=8){var y=y0+Math.sin(x*.016+phase+(helix?i*.7:0))*(state.radius*.7+18);var xx=x+(helix?Math.cos(x*.016+phase)*18:0);if(x===-w*.6)ctx.moveTo(xx,y);else ctx.lineTo(xx,y)}ctx.stroke()}
+}
+function pathDiamond(w,h,phase,fold){
+ var n=state.count,gap=state.spacing*.42;
+ for(var i=0;i<n;i++){beginRail(i,n,state.intensity/100);var r=Math.min(w,h)*.08+i*gap+Math.sin(phase+i*.25)*4;ctx.beginPath();if(fold){ctx.moveTo(-r,0);ctx.lineTo(-r*.35,-r);ctx.lineTo(r*.2,r*.6);ctx.lineTo(r,-r*.2)}else{ctx.moveTo(0,-r);ctx.lineTo(r,0);ctx.lineTo(0,r);ctx.lineTo(-r,0);ctx.closePath()}ctx.stroke()}
+}
+function drawScene(ts){
+ var d=window.devicePixelRatio||1,w=canvas.width,h=canvas.height;
+ ctx.setTransform(1,0,0,1,0,0);ctx.shadowBlur=0;ctx.fillStyle=state.bg;ctx.fillRect(0,0,w,h);
+ var phase=time*state.speed+state.phase*Math.PI/180;if(state.breathe)ctx.globalAlpha=.86+.14*Math.sin(time*1.8);else ctx.globalAlpha=1;
+ ctx.save();setupTransform(w,h);
+ switch(state.shape){
+  case 0:case 10:pathParallel(w,h,phase);break;
+  case 1:case 17:pathArc(w,h,phase,state.shape===17);break;
+  case 2:case 12:pathWave(w,h,phase,2);break;
+  case 3:pathWave(w,h,phase,3);break;
+  case 4:case 5:case 6:case 16:pathOrbit(w,h,phase,state.shape===6);break;
+  case 7:pathCorner(w,h,phase);break;
+  case 8:pathGrid(w,h,phase,false);break;
+  case 9:pathGrid(w,h,phase,true);break;
+  case 11:pathSpiral(w,h,phase);break;
+  case 13:pathChevron(w,h,phase);break;
+  case 14:pathOrbit(w,h,phase,true);break;
+  case 15:pathRibbon(w,h,phase,false);break;
+  case 18:pathBurst(w,h,phase);break;
+  case 19:pathTunnel(w,h,phase);break;
+  case 20:pathRibbon(w,h,phase,true);break;
+  case 21:pathDiamond(w,h,phase,false);break;
+  case 22:pathDiamond(w,h,phase,true);break;
+  case 23:pathRibbon(w,h,phase,false);break;
+ }
+ ctx.restore();ctx.globalAlpha=1;ctx.shadowBlur=0;
+ if(state.grain){
+   var dots=Math.floor(w*h/18000);ctx.fillStyle="rgba(255,255,255,.055)";
+   for(var i=0;i<dots;i++){var x=Math.random()*w,y=Math.random()*h,s=Math.random()*1.2*d;ctx.fillRect(x,y,s,s)}
+ }
+}
+function loop(now){var dt=Math.min(.04,(now-last)/1000);last=now;if(running)time+=dt;drawScene(now);requestAnimationFrame(loop)}
+
+q("langBtn").onclick=function(e){var s=e.target.closest("[data-lang]");if(s)applyLang(s.dataset.lang)};
+q("exportBtn").onclick=function(){q("exportModal").classList.add("show")};
+q("roadmapBtn").onclick=function(){q("roadmapModal").classList.add("show")};
+q("followBtn").onclick=function(){toast(dict[lang].followToast)};
+document.querySelectorAll("[data-close]").forEach(function(b){b.onclick=function(){q(this.dataset.close).classList.remove("show")}});
+document.querySelectorAll(".modal-backdrop").forEach(function(m){m.addEventListener("click",function(e){if(e.target===m)m.classList.remove("show")})});
+
+function downloadBlob(blob,name){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},800)}
+q("pngBtn").onclick=function(){
+ var oldW=canvas.width,oldH=canvas.height;var scale=2;canvas.width=oldW*scale;canvas.height=oldH*scale;drawScene(performance.now());
+ canvas.toBlob(function(blob){downloadBlob(blob,"light-rails-"+String(state.shape+1).padStart(2,"0")+".png");canvas.width=oldW;canvas.height=oldH;drawScene(performance.now());q("exportModal").classList.remove("show");toast(dict[lang].ready)},"image/png");
+};
+q("webmBtn").onclick=function(){
+ if(!canvas.captureStream||!window.MediaRecorder){toast(dict[lang].unsupported);return}
+ var stream=canvas.captureStream(60),rec,parts=[];try{rec=new MediaRecorder(stream,{mimeType:"video/webm;codecs=vp9",videoBitsPerSecond:8000000})}catch(e){try{rec=new MediaRecorder(stream,{mimeType:"video/webm"})}catch(e2){toast(dict[lang].unsupported);return}}
+ var p=q("exportProgress"),bar=p.querySelector("i");p.style.display="block";bar.style.width="0";toast(dict[lang].recording);rec.ondataavailable=function(e){if(e.data.size)parts.push(e.data)};rec.onstop=function(){downloadBlob(new Blob(parts,{type:"video/webm"}),"light-rails-showreel.webm");p.style.display="none";bar.style.width="0";q("exportModal").classList.remove("show");toast(dict[lang].ready)};
+ rec.start(100);var start=performance.now();(function prog(){var v=Math.min(1,(performance.now()-start)/4000);bar.style.width=(v*100)+"%";if(v<1)requestAnimationFrame(prog)})();setTimeout(function(){rec.stop();stream.getTracks().forEach(function(t){t.stop()})},4050);
+};
+document.addEventListener("keydown",function(e){if(e.code==="Space"&&e.target.tagName!=="INPUT"){e.preventDefault();toggleRun()}if(e.key.toLowerCase()==="r"&&e.target.tagName!=="INPUT")randomize()});
+
+buildShapes();updateValues();
+try{var saved=localStorage.getItem("light-rails-lang");if(saved==="zh")lang="zh"}catch(e){}
+applyLang(lang);setTimeout(function(){setRatio();resize();requestAnimationFrame(loop)},40);
+})();
+</script>
+</body>
+</html>

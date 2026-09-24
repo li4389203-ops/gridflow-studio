@@ -24,7 +24,7 @@ function shade(hex, k) {
   const h = hex.replace('#', '')
   const v = h.length === 3 ? h.split('').map(c => c + c).join('') : h
   const f = c => Math.round(parseInt(c, 16) * (1 - k))
-  return \`rgb(\${f(v.slice(0, 2))},\${f(v.slice(2, 4))},\${f(v.slice(4, 6))})\`
+  return `rgb(${f(v.slice(0, 2))},${f(v.slice(2, 4))},${f(v.slice(4, 6))})`
 }
 
 function Ask({ lang }) {
@@ -118,7 +118,7 @@ function Deck({ lang, stops, canvasRef }) {
             className="d-card"
             style={{
               background: c[i],
-              transform: \`rotate(\${(i - 1) * 7}deg) translateY(\${i === 1 ? -6 : 4}%)\`,
+              transform: `rotate(${(i - 1) * 7}deg) translateY(${i === 1 ? -6 : 4}%)`,
               zIndex: i === 1 ? 2 : 1,
             }}
           >

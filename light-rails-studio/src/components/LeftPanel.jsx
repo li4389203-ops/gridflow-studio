@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { PATTERNS, THEMES } from '../patterns.js'
+import { UI_THEMES } from '../presets.js'
 import { defaultsFor, renderFrame } from '../engine.js'
 import { patternName } from '../i18n.js'
 
-export function Sec({ title, defaultOpen = true, first = false, children }) {
+export function Sec({ title, defaultOpen = true, first = false, children, meta = null }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
     <>
@@ -11,7 +12,8 @@ export function Sec({ title, defaultOpen = true, first = false, children }) {
         className={`sec-head ${open ? '' : 'closed'} ${first ? 'first' : ''}`}
         onClick={() => setOpen(o => !o)}
       >
-        {title}
+        <span>{title}</span>
+        {meta ? <em>{meta}</em> : null}
       </button>
       <div className={`sec ${open ? '' : 'closed-body'}`}>{children}</div>
     </>
@@ -46,17 +48,21 @@ const ROLE = (i, n) => (i === 0 ? 'start' : i === n - 1 ? 'end' : 'mid')
 
 export default function LeftPanel({
   lang, t,
+  uiTheme, onUiTheme,
   templateId, onTemplate,
   themeName, onTheme,
   stops, bg, onStops, onBg,
   saved, onApplySaved, onDeleteSaved,
   lookName, onLookName, onSaveNamed,
 }) {
-  const visibleTemplates = Object.keys(PATTERNS).slice(0, 36)
+  const visibleTemplates = Object.keys(PATTERNS)
 
   return (
     <aside className="panel panel-left">
-      <div className="panel-title"><span className="tt">{t('looks')}</span></div>
+      <div className="panel-title">
+        <span className="tt">{t('looks')}</span>
+        <span className="panel-count">{visibleTemplates.length}</span>
+      </div>
 
       <Sec title={t('myPresets')} first>
         <div className="preset-save">
@@ -96,7 +102,27 @@ export default function LeftPanel({
         )}
       </Sec>
 
-      <Sec title={t('themePresets')}>
+      <Sec title={t('uiThemes')}>
+        <div className="ui-theme-grid">
+          {UI_THEMES.map(theme => (
+            <button
+              key={theme.id}
+              className={`ui-theme-card ${uiTheme === theme.id ? 'on' : ''}`}
+              onClick={() => onUiTheme(theme.id)}
+              title={theme.name[lang] || theme.name.en}
+            >
+              <span className="ui-theme-swatches">
+                {theme.swatches.map((color, i) => (
+                  <i key={color + i} style={{ background: color }} />
+                ))}
+              </span>
+              <b>{theme.name[lang] || theme.name.en}</b>
+            </button>
+          ))}
+        </div>
+      </Sec>
+
+      <Sec title={t('themePresets')} meta={THEMES.length}>
         <div className="chips theme-chips">
           {THEMES.map(th => (
             <button
@@ -111,7 +137,7 @@ export default function LeftPanel({
         </div>
       </Sec>
 
-      <Sec title={t('templates')}>
+      <Sec title={t('templates')} meta={visibleTemplates.length}>
         <div className="chips tpl">
           {visibleTemplates.map(id => (
             <button

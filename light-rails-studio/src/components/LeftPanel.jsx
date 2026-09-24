@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { PATTERNS, THEMES } from '../patterns.js'
 import { defaultsFor, renderFrame } from '../engine.js'
+import { patternName } from '../i18n.js'
 
 export function Sec({ title, defaultOpen = true, first = false, children }) {
   const [open, setOpen] = useState(defaultOpen)
   return (
     <>
       <button
-        className={`sec-head ${open ? '' : 'closed'} ${first ? 'first' : ''}`}
+        className={\`sec-head \${open ? '' : 'closed'} \${first ? 'first' : ''}\`}
         onClick={() => setOpen(o => !o)}
       >
         {title}
       </button>
-      <div className={`sec ${open ? '' : 'closed-body'}`}>{children}</div>
+      <div className={\`sec \${open ? '' : 'closed-body'}\`}>{children}</div>
     </>
   )
 }
@@ -22,9 +23,9 @@ function orbStyle(th) {
   const c2 = s[1] ?? s[0]
   return {
     background:
-      `radial-gradient(circle at 30% 22%, ${s[0]} 0%, rgba(0,0,0,0) 58%), ` +
-      `radial-gradient(circle at 76% 74%, ${c2} 0%, rgba(0,0,0,0) 62%), ` +
-      `linear-gradient(140deg, ${s.join(', ')})`,
+      \`radial-gradient(circle at 30% 22%, \${s[0]} 0%, rgba(0,0,0,0) 58%), \` +
+      \`radial-gradient(circle at 76% 74%, \${c2} 0%, rgba(0,0,0,0) 62%), \` +
+      \`linear-gradient(140deg, \${s.join(', ')})\`,
   }
 }
 
@@ -44,21 +45,63 @@ function TemplateThumb({ id, stops, bg }) {
 const ROLE = (i, n) => (i === 0 ? 'start' : i === n - 1 ? 'end' : 'mid')
 
 export default function LeftPanel({
+  lang, t,
   templateId, onTemplate,
   themeName, onTheme,
   stops, bg, onStops, onBg,
   saved, onApplySaved, onDeleteSaved,
+  lookName, onLookName, onSaveNamed,
 }) {
+  const visibleTemplates = Object.keys(PATTERNS).slice(0, 36)
+
   return (
     <aside className="panel panel-left">
-      <div className="panel-title"><span className="tt">Looks</span></div>
+      <div className="panel-title"><span className="tt">{t('looks')}</span></div>
 
-      <Sec title="Theme presets" first>
-        <div className="chips">
+      <Sec title={t('myPresets')} first>
+        <div className="preset-save">
+          <input
+            value={lookName}
+            onChange={e => onLookName(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') onSaveNamed() }}
+            placeholder={t('presetPlaceholder')}
+            aria-label={t('presetPlaceholder')}
+          />
+          <button onClick={onSaveNamed}>{t('save')}</button>
+        </div>
+        {saved.length === 0 ? (
+          <p className="hint preset-hint">{t('emptyPresets')}</p>
+        ) : (
+          <div className="saved-list">
+            {saved.map((item, index) => (
+              <button className="saved-row" key={item.id} onClick={() => onApplySaved(item)}>
+                <img src={item.thumb} alt="" />
+                <span>{item.name || \`Look \${saved.length - index}\`}</span>
+                <i
+                  role="button"
+                  tabIndex={0}
+                  aria-label="delete"
+                  onClick={e => { e.stopPropagation(); onDeleteSaved(item.id) }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      onDeleteSaved(item.id)
+                    }
+                  }}
+                >×</i>
+              </button>
+            ))}
+          </div>
+        )}
+      </Sec>
+
+      <Sec title={t('themePresets')}>
+        <div className="chips theme-chips">
           {THEMES.map(th => (
             <button
               key={th.name}
-              className={`chip orb ${themeName === th.name ? 'on' : ''}`}
+              className={\`chip orb \${themeName === th.name ? 'on' : ''}\`}
               style={orbStyle(th)}
               aria-label={th.name}
               title={th.name}
@@ -68,22 +111,23 @@ export default function LeftPanel({
         </div>
       </Sec>
 
-      <Sec title="Templates">
+      <Sec title={t('templates')}>
         <div className="chips tpl">
-          {Object.keys(PATTERNS).map(id => (
+          {visibleTemplates.map(id => (
             <button
               key={id}
-              className={`chip ${templateId === id ? 'on' : ''}`}
+              className={\`chip \${templateId === id ? 'on' : ''}\`}
               onClick={() => onTemplate(id)}
+              title={patternName(lang, PATTERNS[id].name)}
             >
               <TemplateThumb id={id} stops={stops} bg={bg} />
-              <span>{PATTERNS[id].name}</span>
+              <span>{patternName(lang, PATTERNS[id].name)}</span>
             </button>
           ))}
         </div>
       </Sec>
 
-      <Sec title="Gradient colours">
+      <Sec title={t('gradientColours')} defaultOpen={false}>
         {stops.map((hex, i) => (
           <div className="stop" key={i}>
             <input
@@ -105,20 +149,8 @@ export default function LeftPanel({
           <span />
         </div>
         <div className="btns">
-          <button disabled={stops.length >= 6} onClick={() => onStops([...stops, stops[stops.length - 1]])}>+ stop</button>
-          <button disabled={stops.length <= 2} onClick={() => onStops(stops.slice(0, -1))}>− stop</button>
-        </div>
-      </Sec>
-
-      <Sec title="Saved looks" defaultOpen={saved.length > 0}>
-        {saved.length === 0 && <p className="hint">Nothing saved yet. Hit “Save look”.</p>}
-        <div className="saved-grid">
-          {saved.map(item => (
-            <div className="saved-item" key={item.id} onClick={() => onApplySaved(item)}>
-              <img src={item.thumb} alt={item.cfg.templateId} />
-              <button className="del" onClick={e => { e.stopPropagation(); onDeleteSaved(item.id) }}>✕</button>
-            </div>
-          ))}
+          <button disabled={stops.length >= 6} onClick={() => onStops([...stops, stops[stops.length - 1]])}>{t('addStop')}</button>
+          <button disabled={stops.length <= 2} onClick={() => onStops(stops.slice(0, -1))}>{t('removeStop')}</button>
         </div>
       </Sec>
     </aside>

@@ -1,9 +1,9 @@
 export const UI_THEMES = [
-  { id: 'paper', name: { en: 'Paper', zh: '纸白' }, swatches: ['#ffffff', '#f3f3f0', '#111318'] },
-  { id: 'sand', name: { en: 'Sand', zh: '暖砂' }, swatches: ['#f6f1e7', '#ddd0bb', '#2f2b25'] },
-  { id: 'sage', name: { en: 'Sage', zh: '鼠尾草' }, swatches: ['#edf0e9', '#c8d0c1', '#25312a'] },
-  { id: 'mist', name: { en: 'Mist', zh: '雾蓝' }, swatches: ['#eef2f4', '#cbd6dc', '#202c34'] },
-  { id: 'graphite', name: { en: 'Graphite', zh: '石墨' }, swatches: ['#17191d', '#25282e', '#f2f3f5'] },
+  { id: 'paper', name: { en: 'Porcelain', zh: '瓷白' }, swatches: ['#fbfbf8', '#efefea', '#111318'] },
+  { id: 'sand', name: { en: 'Warm grey', zh: '暖灰' }, swatches: ['#f3efe8', '#d8ccbc', '#312d27'] },
+  { id: 'sage', name: { en: 'Soft sage', zh: '柔和灰绿' }, swatches: ['#f4f7f1', '#cad3c4', '#27312a'] },
+  { id: 'mist', name: { en: 'Stone blue', zh: '石蓝灰' }, swatches: ['#f1f4f5', '#c8d2d7', '#222d34'] },
+  { id: 'graphite', name: { en: 'Graphite', zh: '石墨黑' }, swatches: ['#181a1e', '#292c31', '#f1f3f5'] },
 ]
 
 export const MOTION_PRESETS = [
@@ -53,13 +53,13 @@ export const MOTION_PRESETS = [
     look: { hollow: 0.16, angle: -8, grain: 0.045, gain: 0.94, blur: 0.38, glow: 0.24, blowout: 0, sway: 0.018 },
   },
   {
-    id: 'neon-hit',
-    name: { en: 'Neon hit', zh: '霓虹闪击' },
+    id: 'focus',
+    name: { en: 'Focus', zh: '聚焦呼吸' },
     motion: 'pulse',
-    speed: 1.48,
-    grad: { runSpeed: 2.8, runStretch: 0.76, runSpread: 0.22, runJitter: 0.72, trailHold: 0.08 },
-    timing: { period: 1.35, lifetime: 0.56, rise: 0.018, fallStart: 0.34, topLag: 0.12 },
-    look: { hollow: 0.04, angle: 0, grain: 0.028, gain: 1.34, blur: 0.19, glow: 0.96, blowout: 0.34, sway: 0.012 },
+    speed: 0.7,
+    grad: { runSpeed: 0.34, runStretch: 0.58, runSpread: 0.08, runJitter: 0.04, trailHold: 0.08 },
+    timing: { period: 4.4, lifetime: 0.92, rise: 0.18, fallStart: 0.72, topLag: 0.02 },
+    look: { hollow: 0.05, angle: 0, grain: 0.018, gain: 1.02, blur: 0.28, glow: 0.34, blowout: 0.02, sway: 0.002 },
   },
   {
     id: 'cinema',
@@ -71,13 +71,13 @@ export const MOTION_PRESETS = [
     look: { hollow: 0.12, angle: 3, grain: 0.085, gain: 0.9, blur: 0.34, glow: 0.18, blowout: 0, sway: 0.006 },
   },
   {
-    id: 'liquid',
-    name: { en: 'Liquid', zh: '液态流动' },
-    motion: 'trails',
-    speed: 0.9,
-    grad: { runSpeed: 0.92, runStretch: 2.15, runSpread: 0.33, runJitter: 0.86, trailHold: 0.72 },
-    timing: { period: 5.1, lifetime: 0.94, rise: 0.12, fallStart: 0.76, topLag: -0.08 },
-    look: { hollow: 0.24, angle: 6, grain: 0.028, gain: 1.02, blur: 0.42, glow: 0.38, blowout: 0.02, sway: 0.034 },
+    id: 'ambient',
+    name: { en: 'Ambient', zh: '环境流动' },
+    motion: 'solid',
+    speed: 0.36,
+    grad: { runSpeed: 0.2, runStretch: 1.35, runSpread: 0.18, runJitter: 0.28, trailHold: 0.4 },
+    timing: { period: 8.6, lifetime: 1, rise: 0.16, fallStart: 0.9, topLag: -0.02 },
+    look: { hollow: 0.12, angle: 2, grain: 0.036, gain: 0.96, blur: 0.36, glow: 0.2, blowout: 0, sway: 0.012 },
   },
 ]
 

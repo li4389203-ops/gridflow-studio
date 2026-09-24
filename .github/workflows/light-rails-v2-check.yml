@@ -5,6 +5,7 @@ on:
     branches:
       - light-rails-v2
       - light-rails-v3
+      - light-rails-v4
     paths:
       - 'light-rails-studio/**'
       - '.github/workflows/light-rails-v2-check.yml'

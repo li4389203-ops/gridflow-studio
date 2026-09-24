@@ -1,9 +1,10 @@
-name: Light Rails v2 build check
+name: Light Rails build check
 
 on:
   push:
     branches:
       - light-rails-v2
+      - light-rails-v3
     paths:
       - 'light-rails-studio/**'
       - '.github/workflows/light-rails-v2-check.yml'

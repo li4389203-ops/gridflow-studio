@@ -3,6 +3,7 @@ import { renderFrame } from '../engine.js'
 import { PATTERNS } from '../patterns.js'
 import Overlay from './Overlay.jsx'
 import SelectControl from './SelectControl.jsx'
+import LayoutPicker from './LayoutPicker.jsx'
 
 function Handles({ templateId, params, onParams }) {
   const pat = PATTERNS[templateId]
@@ -94,13 +95,21 @@ export default function Stage({
   }, [canvasRef, timeRef])
 
   const contextOptions = [
-    { value: 'reel', label: t('reel') },
-    { value: 'vision', label: t('vision') },
-    { value: 'hero', label: t('hero') },
-    { value: 'ask', label: t('ask') },
-    { value: 'poster', label: t('poster') },
-    { value: 'deck', label: t('deck') },
-    { value: 'off', label: t('off') },
+    { value: 'reel', label: t('reel'), desc: lang === 'zh' ? '自动轮播精选版式' : 'Curated layout reel', preview: 'reel' },
+    { value: 'editorial', label: t('editorial'), desc: lang === 'zh' ? '大标题与图像建立编辑感' : 'Editorial title-led spread', preview: 'editorial' },
+    { value: 'swiss', label: t('swiss'), desc: lang === 'zh' ? '理性网格与信息层级' : 'Rational grid and hierarchy', preview: 'swiss' },
+    { value: 'split', label: t('split'), desc: lang === 'zh' ? '图形与文字双区平衡' : 'Balanced image / type split', preview: 'split' },
+    { value: 'manifesto', label: t('manifesto'), desc: lang === 'zh' ? '强文字主导的宣言式构图' : 'Type-first manifesto layout', preview: 'manifesto' },
+    { value: 'catalog', label: t('catalog'), desc: lang === 'zh' ? '连续模块化视觉目录' : 'Modular visual catalogue', preview: 'catalog' },
+    { value: 'quote', label: t('quote'), desc: lang === 'zh' ? '留白与引言形成节奏' : 'Whitespace-led quotation study', preview: 'quote' },
+    { value: 'minimal', label: t('minimal'), desc: lang === 'zh' ? '高留白、低信息密度' : 'Quiet low-density frame', preview: 'minimal' },
+    { value: 'vision', label: t('vision'), desc: lang === 'zh' ? '横向品牌主视觉' : 'Horizontal brand hero', preview: 'vision' },
+    { value: 'hero', label: t('hero'), desc: lang === 'zh' ? '中心式系统主视觉' : 'Centered system hero', preview: 'hero' },
+    { value: 'poster', label: t('poster'), desc: lang === 'zh' ? '单张海报式构图' : 'Single poster composition', preview: 'poster' },
+    { value: 'deck', label: t('deck'), desc: lang === 'zh' ? '三卡片模块系统' : 'Three-card modular system', preview: 'deck' },
+    { value: 'index', label: t('index'), desc: lang === 'zh' ? '编号与模块索引构图' : 'Numbered modular index', preview: 'index' },
+    { value: 'ask', label: t('ask'), desc: lang === 'zh' ? '一句话信息条幅' : 'Single-line statement bar', preview: 'ask' },
+    { value: 'off', label: t('off'), desc: lang === 'zh' ? '只保留动态图案' : 'Pure generative pattern', preview: 'off' },
   ]
   const frameOptions = [
     { value: 1.7778, label: '16 : 9' },
@@ -124,12 +133,11 @@ export default function Stage({
       <div className="stage-bar">
         <div className="sb-card">
           <label>{t('pattern')}</label>
-          <SelectControl
+          <LayoutPicker
             value={context}
             options={contextOptions}
             onChange={onContext}
             ariaLabel={t('pattern')}
-            compact
           />
 
           <label>{t('frame')}</label>
@@ -139,6 +147,7 @@ export default function Stage({
             onChange={value => onAspect(Number(value))}
             ariaLabel={t('frame')}
             compact
+            placement="top"
           />
 
           <label style={{ marginLeft: 6 }}>{t('ui')}</label>

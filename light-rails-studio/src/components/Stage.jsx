@@ -29,11 +29,11 @@ function Handles({ templateId, params, onParams }) {
         <div
           key={p.key}
           className="handle"
-          style={{ left: `${p.x * 100}%`, top: `${p.y * 100}%` }}
+          style={{ left: \`\${p.x * 100}%\`, top: \`\${p.y * 100}%\` }}
           onPointerDown={onPointerDown(p.key)}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          title={`drag · ${p.key}`}
+          title={\`drag · \${p.key}\`}
         />
       ))}
     </>
@@ -41,6 +41,7 @@ function Handles({ templateId, params, onParams }) {
 }
 
 export default function Stage({
+  lang, t,
   cfg, playing, onTogglePlay,
   aspect, context, uiOn,
   onContext, onAspect, onUi,
@@ -55,7 +56,6 @@ export default function Stage({
   cfgRef.current = cfg
   playRef.current = playing
 
-  /* fit artboard into stage */
   useEffect(() => {
     const el = stageRef.current
     const ro = new ResizeObserver(() => {
@@ -70,7 +70,6 @@ export default function Stage({
     return () => ro.disconnect()
   }, [aspect])
 
-  /* render loop */
   useEffect(() => {
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
@@ -98,38 +97,41 @@ export default function Stage({
       <div className="stage" ref={stageRef}>
         <div className="artboard" style={{ width: box.w, height: box.h }}>
           <canvas ref={canvasRef} />
-          <Overlay context={context} uiOn={uiOn} stops={cfg.stops} bg={cfg.bg} canvasRef={canvasRef} />
+          <Overlay lang={lang} context={context} uiOn={uiOn} stops={cfg.stops} bg={cfg.bg} canvasRef={canvasRef} />
           <Handles templateId={templateId} params={params} onParams={onParams} />
         </div>
         <button className="play-toggle" onClick={onTogglePlay} title="pause / play">
           {playing ? '❚❚' : '▶'}
         </button>
       </div>
+
       <div className="stage-bar">
         <div className="sb-card">
-          <label>Pattern</label>
+          <label>{t('pattern')}</label>
           <select value={context} onChange={e => onContext(e.target.value)}>
-            <option value="reel">Reel, play all</option>
-            <option value="ask">Question bar</option>
-            <option value="vision">Brand spread</option>
-            <option value="poster">Poster</option>
-            <option value="deck">Card deck</option>
-            <option value="hero">Hero promo</option>
-            <option value="off">Off, pattern only</option>
+            <option value="reel">{t('reel')}</option>
+            <option value="vision">{t('vision')}</option>
+            <option value="hero">{t('hero')}</option>
+            <option value="ask">{t('ask')}</option>
+            <option value="poster">{t('poster')}</option>
+            <option value="deck">{t('deck')}</option>
+            <option value="off">{t('off')}</option>
           </select>
-          <label>Frame</label>
+
+          <label>{t('frame')}</label>
           <select value={String(aspect)} onChange={e => onAspect(+e.target.value)}>
+            <option value="1.7778">16 : 9</option>
             <option value="1">1 : 1</option>
             <option value="0.8">4 : 5</option>
-            <option value="1.7778">16 : 9</option>
           </select>
-          <label style={{ marginLeft: 6 }}>UI</label>
+
+          <label style={{ marginLeft: 6 }}>{t('ui')}</label>
           <button
             type="button"
-            className={`sw ${uiOn ? 'on' : ''}`}
+            className={\`sw \${uiOn ? 'on' : ''}\`}
             role="switch"
             aria-checked={uiOn}
-            aria-label="Show or hide the card UI overlay"
+            aria-label={t('ui')}
             onClick={() => onUi(!uiOn)}
           ><span /></button>
         </div>

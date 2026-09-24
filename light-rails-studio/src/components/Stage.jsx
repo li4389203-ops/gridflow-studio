@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { renderFrame } from '../engine.js'
 import { PATTERNS } from '../patterns.js'
 import Overlay from './Overlay.jsx'
+import SelectControl from './SelectControl.jsx'
 
 function Handles({ templateId, params, onParams }) {
   const pat = PATTERNS[templateId]
@@ -92,6 +93,21 @@ export default function Stage({
     return () => cancelAnimationFrame(raf)
   }, [canvasRef, timeRef])
 
+  const contextOptions = [
+    { value: 'reel', label: t('reel') },
+    { value: 'vision', label: t('vision') },
+    { value: 'hero', label: t('hero') },
+    { value: 'ask', label: t('ask') },
+    { value: 'poster', label: t('poster') },
+    { value: 'deck', label: t('deck') },
+    { value: 'off', label: t('off') },
+  ]
+  const frameOptions = [
+    { value: 1.7778, label: '16 : 9' },
+    { value: 1, label: '1 : 1' },
+    { value: 0.8, label: '4 : 5' },
+  ]
+
   return (
     <section className="stage-col">
       <div className="stage" ref={stageRef}>
@@ -108,22 +124,22 @@ export default function Stage({
       <div className="stage-bar">
         <div className="sb-card">
           <label>{t('pattern')}</label>
-          <select value={context} onChange={e => onContext(e.target.value)}>
-            <option value="reel">{t('reel')}</option>
-            <option value="vision">{t('vision')}</option>
-            <option value="hero">{t('hero')}</option>
-            <option value="ask">{t('ask')}</option>
-            <option value="poster">{t('poster')}</option>
-            <option value="deck">{t('deck')}</option>
-            <option value="off">{t('off')}</option>
-          </select>
+          <SelectControl
+            value={context}
+            options={contextOptions}
+            onChange={onContext}
+            ariaLabel={t('pattern')}
+            compact
+          />
 
           <label>{t('frame')}</label>
-          <select value={String(aspect)} onChange={e => onAspect(+e.target.value)}>
-            <option value="1.7778">16 : 9</option>
-            <option value="1">1 : 1</option>
-            <option value="0.8">4 : 5</option>
-          </select>
+          <SelectControl
+            value={aspect}
+            options={frameOptions}
+            onChange={value => onAspect(Number(value))}
+            ariaLabel={t('frame')}
+            compact
+          />
 
           <label style={{ marginLeft: 6 }}>{t('ui')}</label>
           <button

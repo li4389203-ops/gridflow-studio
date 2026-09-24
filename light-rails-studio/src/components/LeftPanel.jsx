@@ -8,12 +8,12 @@ export function Sec({ title, defaultOpen = true, first = false, children }) {
   return (
     <>
       <button
-        className={\`sec-head \${open ? '' : 'closed'} \${first ? 'first' : ''}\`}
+        className={`sec-head ${open ? '' : 'closed'} ${first ? 'first' : ''}`}
         onClick={() => setOpen(o => !o)}
       >
         {title}
       </button>
-      <div className={\`sec \${open ? '' : 'closed-body'}\`}>{children}</div>
+      <div className={`sec ${open ? '' : 'closed-body'}`}>{children}</div>
     </>
   )
 }
@@ -23,9 +23,9 @@ function orbStyle(th) {
   const c2 = s[1] ?? s[0]
   return {
     background:
-      \`radial-gradient(circle at 30% 22%, \${s[0]} 0%, rgba(0,0,0,0) 58%), \` +
-      \`radial-gradient(circle at 76% 74%, \${c2} 0%, rgba(0,0,0,0) 62%), \` +
-      \`linear-gradient(140deg, \${s.join(', ')})\`,
+      `radial-gradient(circle at 30% 22%, ${s[0]} 0%, rgba(0,0,0,0) 58%), ` +
+      `radial-gradient(circle at 76% 74%, ${c2} 0%, rgba(0,0,0,0) 62%), ` +
+      `linear-gradient(140deg, ${s.join(', ')})`,
   }
 }
 
@@ -76,7 +76,7 @@ export default function LeftPanel({
             {saved.map((item, index) => (
               <button className="saved-row" key={item.id} onClick={() => onApplySaved(item)}>
                 <img src={item.thumb} alt="" />
-                <span>{item.name || \`Look \${saved.length - index}\`}</span>
+                <span>{item.name || `Look ${saved.length - index}`}</span>
                 <i
                   role="button"
                   tabIndex={0}
@@ -101,7 +101,7 @@ export default function LeftPanel({
           {THEMES.map(th => (
             <button
               key={th.name}
-              className={\`chip orb \${themeName === th.name ? 'on' : ''}\`}
+              className={`chip orb ${themeName === th.name ? 'on' : ''}`}
               style={orbStyle(th)}
               aria-label={th.name}
               title={th.name}
@@ -116,7 +116,7 @@ export default function LeftPanel({
           {visibleTemplates.map(id => (
             <button
               key={id}
-              className={\`chip \${templateId === id ? 'on' : ''}\`}
+              className={`chip ${templateId === id ? 'on' : ''}`}
               onClick={() => onTemplate(id)}
               title={patternName(lang, PATTERNS[id].name)}
             >

@@ -7,6 +7,7 @@ export default function SelectControl({
   ariaLabel,
   className = '',
   compact = false,
+  placement = 'bottom',
 }) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef(null)
@@ -31,7 +32,7 @@ export default function SelectControl({
   return (
     <div
       ref={rootRef}
-      className={`select-control ${compact ? 'compact' : ''} ${className}`}
+      className={`select-control ${compact ? 'compact' : ''} place-${placement} ${className}`}
     >
       <button
         type="button"

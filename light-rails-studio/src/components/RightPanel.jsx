@@ -1,5 +1,7 @@
 import { PATTERNS } from '../patterns.js'
+import { GRADIENT_RUN_PRESETS, MOTION_PRESETS } from '../presets.js'
 import Slider from './Slider.jsx'
+import SelectControl from './SelectControl.jsx'
 import { Sec } from './LeftPanel.jsx'
 import { paramLabel, patternName } from '../i18n.js'
 
@@ -57,6 +59,7 @@ export default function RightPanel({
     if (defs[key].sec === 'lines') lineKeys.push(key)
     else shapeKeys.push(key)
   }
+
   const paramSlider = key => (
     <Slider
       key={templateId + key}
@@ -67,6 +70,20 @@ export default function RightPanel({
     />
   )
 
+  const applyMotionPreset = (preset) => {
+    onMotion(preset.motion)
+    onSpeed(preset.speed)
+    onGrad({ ...preset.grad })
+    onTiming({ ...preset.timing })
+    onLook({ ...preset.look })
+  }
+
+  const motionOptions = [
+    { value: 'trails', label: t('trails') },
+    { value: 'solid', label: t('solid') },
+    { value: 'pulse', label: t('pulse') },
+  ]
+
   return (
     <aside className="panel panel-right">
       <div className="panel-title rails-title">
@@ -76,25 +93,49 @@ export default function RightPanel({
         <button className="hide-btn" title="hide panel (H)" onClick={onHide}>×</button>
       </div>
 
-      <Sec title={t('shape')} first>
+      <Sec title={t('motionPresets')} first>
+        <div className="quick-preset-grid motion-presets">
+          {MOTION_PRESETS.map(preset => (
+            <button key={preset.id} onClick={() => applyMotionPreset(preset)}>
+              <i className={`motion-glyph ${preset.id}`} />
+              <span>{preset.name[lang] || preset.name.en}</span>
+            </button>
+          ))}
+        </div>
+      </Sec>
+
+      <Sec title={t('shape')}>
         <div className="row motion-row">
           <label>{t('motion')}</label>
-          <select value={motion} onChange={e => onMotion(e.target.value)}>
-            <option value="trails">{t('trails')}</option>
-            <option value="solid">{t('solid')}</option>
-            <option value="pulse">{t('pulse')}</option>
-          </select>
+          <SelectControl
+            value={motion}
+            options={motionOptions}
+            onChange={onMotion}
+            ariaLabel={t('motion')}
+          />
         </div>
         {shapeKeys.map(paramSlider)}
       </Sec>
 
-      {lineKeys.length > 0 && (
+      {lineKeys.length > 0 ? (
         <Sec title={t('lines')}>
           {lineKeys.map(paramSlider)}
         </Sec>
-      )}
+      ) : null}
 
-      <Sec title={t('gradientRun')} defaultOpen={false}>
+      <Sec title={t('gradientRun')} defaultOpen>
+        <div className="quick-preset-grid gradient-presets">
+          {GRADIENT_RUN_PRESETS.map(preset => (
+            <button
+              key={preset.id}
+              onClick={() => onGrad({ ...preset.values })}
+              title={preset.name[lang] || preset.name.en}
+            >
+              <i className={`gradient-glyph ${preset.id}`} />
+              <span>{preset.name[lang] || preset.name.en}</span>
+            </button>
+          ))}
+        </div>
         <Rows defs={GRAD_DEFS} values={grad} onChange={onGrad} lang={lang} />
       </Sec>
 

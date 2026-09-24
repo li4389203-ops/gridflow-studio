@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { PATTERNS, THEMES } from './patterns.js'
+import { MOTION_PRESETS } from './presets.js'
 import {
   defaultsFor, randomParamsFor, renderStill,
   encodeCfg, decodeCfg, download, recordWebm,
@@ -13,6 +14,7 @@ import RightPanel from './components/RightPanel.jsx'
 const SAVE_KEY = 'light-rails-saved-looks'
 const LANG_KEY = 'light-rails-lang'
 const UI_THEME_KEY = 'light-rails-ui-theme'
+const RANDOM_LAYOUTS = ['editorial','swiss','split','manifesto','catalog','quote','minimal','vision','hero','poster','deck','index']
 
 function loadSaved() {
   try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || [] } catch { return [] }
@@ -187,9 +189,17 @@ export default function App() {
     const ids = Object.keys(PATTERNS)
     const id = ids[Math.floor(Math.random() * ids.length)]
     const th = THEMES[Math.floor(Math.random() * THEMES.length)]
+    const motionPreset = MOTION_PRESETS[Math.floor(Math.random() * MOTION_PRESETS.length)]
+    const nextLayout = RANDOM_LAYOUTS[Math.floor(Math.random() * RANDOM_LAYOUTS.length)]
     setTemplateId(id)
     setParams(randomParamsFor(id))
     onTheme(th)
+    setMotion(motionPreset.motion)
+    setSpeed(motionPreset.speed)
+    setGrad({ ...motionPreset.grad })
+    setTiming({ ...motionPreset.timing })
+    setLook({ ...motionPreset.look })
+    setContext(nextLayout)
     timeRef.current = 0
     setMoreOpen(false)
   }
@@ -290,6 +300,7 @@ export default function App() {
     const onKey = (e) => {
       if (/input|select|textarea/i.test(e.target.tagName)) return
       if (e.key.toLowerCase() === 'h' && !e.metaKey && !e.ctrlKey) setPanelOpen(o => !o)
+      if (e.key.toLowerCase() === 'r' && !e.metaKey && !e.ctrlKey) shuffle()
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault()
         if (e.shiftKey) redo()
@@ -329,11 +340,14 @@ export default function App() {
             <button className={lang === 'zh' ? 'on' : ''} onClick={() => setLang('zh')}>中</button>
           </div>
 
+          <button className="tb-random" onClick={shuffle} title="R">
+            <span aria-hidden="true">⤨</span>{t('shuffle')}
+          </button>
+
           <div className="more-wrap" onPointerDown={e => e.stopPropagation()}>
             <button className="icon-action more-btn" onClick={() => setMoreOpen(o => !o)} aria-label={t('more')}>•••</button>
             {moreOpen && (
               <div className="export-menu more-menu">
-                <button onClick={shuffle}>⤨ {t('shuffle')}</button>
                 <button onClick={share}>↗ {t('share')}</button>
                 <button onClick={() => fileRef.current?.click()}>⇧ {t('importJson')}</button>
                 <button onClick={resetAll}>↻ {t('reset')}</button>

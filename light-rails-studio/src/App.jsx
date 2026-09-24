@@ -12,12 +12,16 @@ import RightPanel from './components/RightPanel.jsx'
 
 const SAVE_KEY = 'light-rails-saved-looks'
 const LANG_KEY = 'light-rails-lang'
+const UI_THEME_KEY = 'light-rails-ui-theme'
 
 function loadSaved() {
   try { return JSON.parse(localStorage.getItem(SAVE_KEY)) || [] } catch { return [] }
 }
 function loadLang() {
   try { return localStorage.getItem(LANG_KEY) === 'zh' ? 'zh' : 'en' } catch { return 'en' }
+}
+function loadUiTheme() {
+  try { return localStorage.getItem(UI_THEME_KEY) || 'paper' } catch { return 'paper' }
 }
 
 export default function App() {
@@ -38,6 +42,7 @@ export default function App() {
   const [playing, setPlaying] = useState(true)
 
   const [lang, setLang] = useState(loadLang)
+  const [uiTheme, setUiTheme] = useState(loadUiTheme)
   const [saved, setSaved] = useState(loadSaved)
   const [lookName, setLookName] = useState('')
   const [exportOpen, setExportOpen] = useState(false)
@@ -99,6 +104,11 @@ export default function App() {
     try { localStorage.setItem(LANG_KEY, lang) } catch {}
     document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en'
   }, [lang])
+
+  useEffect(() => {
+    try { localStorage.setItem(UI_THEME_KEY, uiTheme) } catch {}
+    document.documentElement.dataset.uiTheme = uiTheme
+  }, [uiTheme])
 
   useEffect(() => {
     const snapshot = JSON.stringify(cfg)
@@ -174,7 +184,7 @@ export default function App() {
   const onParams = (patch) => setParams(p => ({ ...p, ...patch }))
 
   const shuffle = () => {
-    const ids = Object.keys(PATTERNS).slice(0, 36)
+    const ids = Object.keys(PATTERNS)
     const id = ids[Math.floor(Math.random() * ids.length)]
     const th = THEMES[Math.floor(Math.random() * THEMES.length)]
     setTemplateId(id)
@@ -354,6 +364,7 @@ export default function App() {
       <main className={`layout ${panelOpen ? '' : 'no-right'}`}>
         <LeftPanel
           lang={lang} t={t}
+          uiTheme={uiTheme} onUiTheme={setUiTheme}
           templateId={templateId} onTemplate={onTemplate}
           themeName={themeName} onTheme={onTheme}
           stops={stops} bg={bg}
@@ -408,7 +419,7 @@ export default function App() {
             </div>
             <p>{t('roadmapBody')}</p>
             <div className="roadmap-grid">
-              <div><b>01</b><span>36 CORE TEMPLATES</span></div>
+              <div><b>01</b><span>42 CORE TEMPLATES</span></div>
               <div><b>02</b><span>LIVE RAIL PARAMETERS</span></div>
               <div><b>03</b><span>BRAND CONTEXTS</span></div>
               <div><b>04</b><span>PNG / JSON / WEBM</span></div>

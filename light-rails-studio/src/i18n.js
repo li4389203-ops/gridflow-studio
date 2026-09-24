@@ -8,6 +8,9 @@ export const UI = {
     save: 'Save',
     emptyPresets: 'Nothing saved yet. Tune a look, name it, hit Save.',
     themePresets: 'Theme presets',
+    uiThemes: 'Interface themes',
+    motionPresets: 'Motion presets',
+    gradientStyles: 'Gradient styles',
     templates: 'Templates',
     gradientColours: 'Gradient colours',
     addStop: '+ stop',
@@ -60,7 +63,9 @@ export const UI = {
     nameNeeded: 'Give this look a name first',
     roadmapTitle: 'Roadmap',
     roadmapBody: 'Light Rails is a living pattern studio: tune rail geometry, colour runs and timing, then place the result inside reusable brand layouts. This reconstruction keeps the editor local-first and adds bilingual UI without changing the visual system.',
-    close: 'Close'
+    close: 'Close',
+    advancedModes: 'Advanced modes',
+    templateCount: '42 templates'
   },
   zh: {
     brand: 'Light Rails',
@@ -71,6 +76,9 @@ export const UI = {
     save: '保存',
     emptyPresets: '暂未保存预设。调整到满意的效果后，命名并点击“保存”。',
     themePresets: '主题预设',
+    uiThemes: '界面主题',
+    motionPresets: '动画模式预设',
+    gradientStyles: '渐变变化样式',
     templates: '图案模板',
     gradientColours: '渐变颜色',
     addStop: '+ 添加色标',
@@ -123,7 +131,9 @@ export const UI = {
     nameNeeded: '请先给这个效果命名',
     roadmapTitle: '更新计划',
     roadmapBody: 'Light Rails 是一套动态品牌图案工作室：先精确控制光轨几何、渐变流动和动画时序，再将结果放入可复用的品牌版式中。此复刻版保留本地优先的编辑方式，并增加中英文界面切换。',
-    close: '关闭'
+    close: '关闭',
+    advancedModes: '高级模式',
+    templateCount: '42 个模板'
   }
 }
 
